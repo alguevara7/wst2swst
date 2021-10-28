@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+test ! -z ${DEBUG+x} && set -x
+
+PROJECT_NAME=wst2swst
+BUILD_VERSION=${BUILD_VERSION:-dev}
+
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+
+DOCKER_PORT_MAPPING=${DOCKER_PORT_MAPPING:-''}
+
+PYTHON_CMD="python $@"
+docker run -it \
+    --rm \
+    --name ${PROJECT_NAME}-$(date +%s) \
+    --user ${USER_ID}:${GROUP_ID} \
+    -e DEBUG \
+    -e LC_ALL="C.UTF-8" \
+    -e LANG="C.UTF-8" \
+    -v ${PWD}:/usr/src/${PROJECT_NAME} \
+    -w /usr/src/${PROJECT_NAME} \
+    --network host \
+    ${PROJECT_NAME}:${BUILD_VERSION} \
+    ${PYTHON_CMD}

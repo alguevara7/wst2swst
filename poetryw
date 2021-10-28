@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+test ! -z ${DEBUG+x} && set -x
+
+PROJECT_NAME=wst2swst
+BUILD_VERSION=${BUILD_VERSION:-dev}
+
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+
+POETRY_CMD="poetry $@"
+docker run -it \
+    --rm \
+    --name ${PROJECT_NAME}-$(date +%s) \
+    --user ${USER_ID}:${GROUP_ID} \
+    -e DEBUG \
+    -e LC_ALL="C.UTF-8" \
+    -e LANG="C.UTF-8" \
+    -v ${PWD}/pyproject.toml:/home/poetry/pyproject.toml \
+    -w /home/poetry \
+    ${PROJECT_NAME}:${BUILD_VERSION} \
+    ${POETRY_CMD}
